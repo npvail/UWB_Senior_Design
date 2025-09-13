@@ -94,17 +94,31 @@ class UWB:
         return temp_x, temp_y
 
 # Get the first available COM port
+# def get_frist_com():
+#     port_list = serial.tools.list_ports.comports()
+
+#     if len(port_list) <= 0:
+#         print("No COM")
+#         return ""
+#     else:
+#         print("First COM")
+#         for com in port_list:
+#             print(com)
+#             return list(com)[0]
+
 def get_frist_com():
     port_list = serial.tools.list_ports.comports()
-
-    if len(port_list) <= 0:
-        print("No COM")
-        return ""
-    else:
-        print("First COM")
-        for com in port_list:
-            print(com)
-            return list(com)[0]
+    for port in port_list:
+        print("found port:", port.device)
+        # Add a check for Mac-specific serial port names
+        if  "usbserial" in port.device or \
+            "CH340" in port.description or \
+            "wchusbserial" in port.device or \
+            "1A86:7523" in port.hwid:
+            print(f"Found compatible port: {port.device}")
+            return port.device
+    print("WARNING: No compatible serial port found.")
+    return None
 
 # Draw UWB objects on the screen
 def draw_uwb(uwb):
