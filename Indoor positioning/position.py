@@ -23,6 +23,12 @@ class UWB:
         self.status = False
         self.list = []
 
+        # start smoth output
+        # Add a list to store the history of positions and define the window size
+        self.position_history = []
+        self.smoothing_window = 5  # decrease if the output too slow to react quick changes
+        # end smoth
+
         if self.type == 1:
             self.color = RED
         else:
@@ -64,7 +70,31 @@ class UWB:
 
             print(f"[DEBUG] Calculated position for {self.name}: ({x}, {y})")
 
-            self.set_location(x, y)
+            # self.set_location(x, y)
+
+            # start smoth output
+            # Add the new raw position to our history
+            self.position_history.append((x, y))
+
+            # Ensure the history does not exceed the window size
+            if len(self.position_history) > self.smoothing_window:
+                self.position_history.pop(0)
+
+            # Calculate the average of the positions in the history
+            sum_x = 0
+            sum_y = 0
+            for pos_x, pos_y in self.position_history:
+                sum_x += pos_x
+                sum_y += pos_y
+
+            smoothed_x = int(sum_x / len(self.position_history))
+            smoothed_y = int(sum_y / len(self.position_history))
+
+            print(f"[DEBUG] Smoothed position for {self.name}: ({smoothed_x}, {smoothed_y})")
+
+            self.set_location(smoothed_x, smoothed_y)
+            # end smoth output 
+            
             self.status = True
         else:
             print(f"[WARNING] Not enough anchors to calculate position for {self.name}")
