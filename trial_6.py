@@ -50,9 +50,9 @@ anchors = [
 
 input_boxes = []
 for i, anc in enumerate(anchors):
-    x_box = pygame.Rect(50, 50 + i * 60, INPUT_WIDTH, INPUT_HEIGHT)
-    y_box = pygame.Rect(130, 50 + i * 60, INPUT_WIDTH, INPUT_HEIGHT)
-    set_button = pygame.Rect(210, 50 + i * 60, 60, INPUT_HEIGHT)
+    x_box = pygame.Rect(100, 50 + i * 60, INPUT_WIDTH, INPUT_HEIGHT)
+    y_box = pygame.Rect(175, 50 + i * 60, INPUT_WIDTH, INPUT_HEIGHT)
+    set_button = pygame.Rect(250, 50 + i * 60, 60, INPUT_HEIGHT)
     input_boxes.append({
         "x_box": x_box,
         "y_box": y_box,
@@ -242,13 +242,55 @@ def serial_reader_thread():
             # ---------------- Parse AT+RANGE=... ----------------
             if line.startswith("AT+RANGE="):
                 try:
-                    parts = line.split("=")[1].split(",")
-                    tid = int(parts[0].split(":")[1])
+                    # Example line formats seen in the wild:
+                    # AT+RANGE=tag:0,ts:12345,anc:3,rng:(227,0,0)
+                    # or sometimes with spaces or missing parentheses
+                    rest = line.split("=", 1)[1]
+                    parts = [p.strip() for p in rest.split(",")]
+                    # find tag id
+                    tid = None
+                    for p in parts:
+                        if p.startswith("tag:") or p.startswith("tid:"):
+                            try:
+                                tid = int(p.split(":", 1)[1])
+                            except:
+                                pass
 
-                    # ---- FIXED: handle multiple anchor ranges ----
-                    ranges_str = parts[3].split(":")[1].strip("()")
-                    range_values = [int(r) if r != "0" else 0 for r in ranges_str.split(",")]
+                    # find ranges part (look for 'rng:' or parentheses)
+                    ranges_candidate = None
+                    for p in parts:
+                        if p.startswith("rng:") or p.startswith("ranges:") or p.startswith("r:") or "(" in p:
+                            ranges_candidate = p
+                            break
 
+                    if ranges_candidate is None:
+                        # maybe the ranges are in the last part after an anc:...
+                        ranges_candidate = parts[-1]
+
+                    # extract numbers from the candidate
+                    rng_text = ranges_candidate
+                    if ":(" in rng_text:
+                        rng_text = rng_text.split(":(" ,1)[1].rstrip(")")
+                    elif "(" in rng_text and ")" in rng_text:
+                        rng_text = rng_text.split("(",1)[1].split(")",1)[0]
+                    elif ":" in rng_text:
+                        rng_text = rng_text.split(":",1)[1]
+
+                    # split by commas and filter empty
+                    rng_parts = [r.strip() for r in rng_text.split(",") if r.strip() != ""]
+                    # convert to ints, keep 0 as 0
+                    range_values = []
+                    for r in rng_parts:
+                        try:
+                            range_values.append(int(r))
+                        except:
+                            # ignore non-int tokens
+                            pass
+
+                    if tid is None:
+                        tid = 0
+
+                    print(f"[DEBUG] Raw AT+RANGE line: '{line}'")
                     print(f"[LOG] AT+RANGE parsed: tid={tid}, ranges={range_values}")
                 except Exception as e:
                     print(f"[ERROR] Failed to parse AT+RANGE line: {line}, {e}")
@@ -398,7 +440,12 @@ while running:
         draw_text("Enter Anchor Coordinates (cm):", 50, 15)
         for i, anc_item in enumerate(anchors):
             boxes = input_boxes[i]
-            draw_text(anc_item["name"], 10, 55 + i * 60)
+            # right-align the label so it sits just left of the x input box and won't be clipped
+            label_text = anc_item["name"]
+            text_w = font.size(label_text)[0]
+            label_right = boxes["x_box"].x - 10
+            label_x = max(5, label_right - text_w)
+            draw_text(label_text, label_x, boxes["x_box"].y + 2)
             pygame.draw.rect(screen, LIGHT_GRAY if boxes["active"] == "x" else GRAY, boxes["x_box"])
             pygame.draw.rect(screen, LIGHT_GRAY if boxes["active"] == "y" else GRAY, boxes["y_box"])
             pygame.draw.rect(screen, GREEN, boxes["button"])
