@@ -142,6 +142,7 @@ def get_frist_com():
         print("found port:", port.device)
         # Add a check for Mac-specific serial port names
         if  "usbserial" in port.device or \
+            "usbmodem" in port.device or \
             "CH340" in port.description or \
             "wchusbserial" in port.device or \
             "1A86:7523" in port.hwid:
