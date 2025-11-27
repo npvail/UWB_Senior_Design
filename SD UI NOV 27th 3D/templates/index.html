@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UWB Object Tracking UI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <button class="sidebar-toggle" id="sidebar-toggle">⚙️ Settings</button>
+    <div class="wrapper">
+        <div class="main-content" id="main-content">
+            <h1>Find My Tools</h1>
+            <div id="map-container"><canvas id="map-canvas"></canvas></div>
+        </div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <!-- Priority Sections - Always Visible -->
+                <div class="priority-section">
+                    <h2>🚨 Alerts</h2>
+                    <div id="alert-container" class="alert-container"></div>
+                </div>
+                
+                <div class="priority-section">
+                    <h2>📊 Live Data</h2>
+                    <div id="tag-positions"></div>
+                </div>
+                
+                <!-- Collapsible Settings Sections -->
+                <div class="accordion-section">
+                    <div class="accordion-header" data-section="zones">
+                        <span><strong>📍 Zones</strong></span>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content" id="accordion-zones">
+                        <div class="zone-controls">
+                            <button id="draw-zone-btn" class="btn-warning">Draw Zone</button>
+                            <div id="draw-zone-form" class="draw-zone-form">
+                                <label for="zone-name-input">Zone Name:</label>
+                                <input type="text" id="zone-name-input" placeholder="Enter zone name">
+                                <label for="zone-severity-input">Severity:</label>
+                                <select id="zone-severity-input">
+                                    <option value="WARNING">WARNING</option>
+                                    <option value="ALERT">ALERT</option>
+                                </select>
+                                <label for="zone-color-input">Color:</label>
+                                <input type="color" id="zone-color-input" value="#ff0000">
+                            </div>
+                            <div id="zone-list" class="zone-list"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-section">
+                    <div class="accordion-header" data-section="map-settings">
+                        <span><strong>🗺️ Map Settings</strong></span>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content" id="accordion-map-settings">
+                        <div class="info-section">
+                            <h3>Map Background</h3>
+                            <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                            <button id="select-image-btn" class="btn-secondary">Select Background Image</button>
+                        </div>
+                        <div class="info-section">
+                            <h3>Tracking Area</h3>
+                            <div class="control-input">
+                                <label for="area-width">Width (m):</label>
+                                <input type="number" id="area-width" step="0.1">
+                            </div>
+                            <div class="control-input">
+                                <label for="area-height">Height (m):</label>
+                                <input type="number" id="area-height" step="0.1">
+                            </div>
+                            <button id="save-area-btn" class="btn-secondary">Save Area</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-section">
+                    <div class="accordion-header" data-section="anchors">
+                        <span><strong>📡 Anchor Configuration</strong></span>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content" id="accordion-anchors">
+                        <div id="anchor-controls" class="anchor-controls">
+                            <h3>Anchor Positions (cm)</h3>
+                        </div>
+                        <div id="anchor-z-heights" class="anchor-controls" style="margin-top: 15px;">
+                            <h3>Anchor Z-Heights (cm)</h3>
+                            <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">Height of each anchor off the floor</p>
+                        </div>
+                        <div class="info-section" style="margin-top: 15px;">
+                            <h3>Tag Height (cm)</h3>
+                            <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">Approximate height of the tracked object</p>
+                            <div class="control-input">
+                                <label for="tag-height-input">Tag Height:</label>
+                                <input type="number" id="tag-height-input" step="0.1" min="0">
+                            </div>
+                        </div>
+                        <button id="save-anchors-btn" class="btn-primary">Save Anchor Positions</button>
+                        <button id="save-heights-btn" class="btn-secondary" style="margin-top: 10px;">Save Heights</button>
+                        <div id="status-message"></div>
+                    </div>
+                </div>
+                
+                <div class="accordion-section">
+                    <div class="accordion-header" data-section="tags">
+                        <span><strong>🏷️ Tag Management</strong></span>
+                        <span class="accordion-icon">▶</span>
+                    </div>
+                    <div class="accordion-content" id="accordion-tags">
+                        <div class="tag-rename-controls">
+                            <h3>Rename Tag</h3>
+                            <div class="control-input">
+                                <label for="tag-select-dropdown">Select Tag:</label>
+                                <select id="tag-select-dropdown"></select>
+                            </div>
+                            <div class="control-input">
+                                <label for="new-tag-name">New Name:</label>
+                                <input type="text" id="new-tag-name" placeholder="e.g., Forklift 1">
+                            </div>
+                            <button id="rename-tag-btn" class="btn-secondary">Rename Tag</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
+
