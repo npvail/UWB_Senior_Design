@@ -59,7 +59,7 @@ pip install flask flask-socketio simple-websocket numpy pyserial
 ```
 
 ### 3. Run the Application
-1.  Connect your UWB Anchor/Gateway to the USB port.
+1.  Connect Anchor 0 to the USB port.
 2.  Start the server:
     ```bash
     python app.py
