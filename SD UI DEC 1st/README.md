@@ -59,7 +59,7 @@ pip install flask flask-socketio simple-websocket numpy pyserial
 ```
 
 ### 3. Run the Application
-1.  Connect your UWB Anchor/Gateway to the USB port.
+1.  Connect Anchor 0 to the USB port.
 2.  Start the server:
     ```bash
     python app.py
@@ -161,4 +161,5 @@ The system creates a file named `state.json` in the root folder. If you ever nee
     1.  Check the server logs for: `WARNING: Non-admin access attempt from: 192.168.x.x`.
     2.  Copy that IP.
     3.  Add it to `ADMIN_IPS` in `config.py`.
+
     4.  Restart the server.
